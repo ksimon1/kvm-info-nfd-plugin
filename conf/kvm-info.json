@@ -1,0 +1,10 @@
+{
+	"osrelease": "/etc/os-release",
+	"checks": [
+		{
+			"os": "centos",
+			"feature": "hyperv",
+			"kernelminver": "3.10.0-957.5.1.el7.x86_64"
+		}
+	]
+}

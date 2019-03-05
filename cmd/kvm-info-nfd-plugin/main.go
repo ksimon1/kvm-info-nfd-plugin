@@ -37,6 +37,6 @@ func main() {
 	}
 
 	for _, feature := range features {
-		fmt.Printf("/kvm-support-%s\n", feature)
+		fmt.Printf("/kvm-info-%s\n", feature)
 	}
 }

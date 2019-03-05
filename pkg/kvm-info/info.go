@@ -16,118 +16,12 @@
  * Copyright 2018 Red Hat, Inc.
  */
 
-package kvmmain
+package kvminfo
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"os"
-	"path"
-	"strings"
-	"unicode"
-
-	"github.com/cobaugh/osrelease"
-	goversion "github.com/hashicorp/go-version"
 )
-
-type Check struct {
-	OS           string `json:"os"`
-	Feature      string `json:"feature"`
-	KernelMinVer string `json:"kernelminver"`
-	KernelMaxVer string `json:"kernelmaxver"`
-}
-
-type Config struct {
-	OSRelease string  `json:"osrelease"`
-	ProcDir   string  `json:"procdir"`
-	Checks    []Check `json:"checks"`
-}
-
-func Features() []string {
-	return []string{
-		"hyperv",
-	}
-}
-
-func (c *Check) IsValid(features []string) bool {
-	if c.Feature == "" || c.OS == "" {
-		return false
-	}
-	if c.KernelMinVer == "" && c.KernelMaxVer == "" {
-		return false
-	}
-
-	for _, feature := range features {
-		if feature == c.Feature {
-			return true
-		}
-	}
-	return false
-}
-
-func (c *Check) IsSatisfied(os string, ver *goversion.Version) (bool, error) {
-	if c.OS != os {
-		return false, nil
-	}
-	if c.KernelMinVer != "" {
-		minVer, err := goversion.NewVersion(sanitizeVersion(c.KernelMinVer))
-		if err != nil {
-			return false, err
-		}
-		if ver.Compare(minVer) < 0 {
-			return false, nil
-		}
-	}
-	if c.KernelMaxVer != "" {
-		maxVer, err := goversion.NewVersion(sanitizeVersion(c.KernelMaxVer))
-		if err != nil {
-			return false, err
-		}
-		if ver.Compare(maxVer) > 0 {
-			return false, nil
-		}
-	}
-	return true, nil
-}
-
-func OSRelease(conf *Config) (map[string]string, error) {
-	if conf.OSRelease != "" {
-		return osrelease.ReadFile(conf.OSRelease)
-	}
-	return osrelease.Read()
-}
-
-func KernelVersion(conf *Config) (*goversion.Version, error) {
-	procVersion := "/proc/version"
-	if conf.ProcDir != "" {
-		procVersion = path.Join(path.Clean(conf.ProcDir), "version")
-	}
-	versionData, err := ioutil.ReadFile(procVersion)
-	if err != nil {
-		return nil, err
-	}
-	items := strings.Split(string(versionData), " ")
-	// items[0] = "Linux"
-	// items[1] = "version"
-	return goversion.NewVersion(sanitizeVersion(items[2]))
-}
-
-func ReadConfig(confPath string) (*Config, error) {
-	fh, err := os.Open(confPath)
-	if err != nil {
-		return nil, err
-	}
-	defer fh.Close()
-	conf := Config{}
-	dec := json.NewDecoder(fh)
-	err = dec.Decode(&conf)
-	if err != nil {
-		return nil, err
-	}
-	return &conf, nil
-}
 
 func Run(confPath string, w io.Writer) ([]string, error) {
 	detected := []string{}
@@ -166,19 +60,4 @@ func Run(confPath string, w io.Writer) ([]string, error) {
 	}
 
 	return detected, nil
-}
-
-func sanitizeVersion(ver string) string {
-	var pc rune = 0x00
-	for i, c := range ver {
-		if unicode.IsDigit(c) || c == '-' || c == '.' {
-			pc = c
-			continue
-		}
-		if i > 0 && !unicode.IsDigit(pc) {
-			return ver[:i-1]
-		}
-		return ver[:i]
-	}
-	return ver
 }

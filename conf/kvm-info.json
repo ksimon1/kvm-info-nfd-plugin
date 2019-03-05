@@ -5,6 +5,12 @@
 			"os": "centos",
 			"feature": "hyperv",
 			"kernelminver": "3.10.0-957.5.1.el7.x86_64"
+		},
+		{
+			"os": "centos",
+			"feature": "hypervL2",
+			"kernelminver": "3.10.0-957.5.1.el7.x86_64"
 		}
+
 	]
 }

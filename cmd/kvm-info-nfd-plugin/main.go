@@ -29,8 +29,22 @@ const (
 	ConfigFilePath string = "conf/kvm-info.json"
 )
 
+func parseArgs() string {
+	if len(os.Args) == 2 {
+		arg := os.Args[1]
+		if arg == "-h" || arg == "--help" || arg == "help" {
+			fmt.Fprintf(os.Stderr, "usage: %s [config_file_path]\n", os.Args[0])
+			fmt.Fprintf(os.Stderr, "default config_file_path is '%s'\n", ConfigFilePath)
+			os.Exit(0)
+		}
+		return arg
+	}
+	return ConfigFilePath
+}
+
 func main() {
-	features, err := kvminfo.Run(ConfigFilePath, os.Stderr)
+	confFilePath := parseArgs()
+	features, err := kvminfo.Run(confFilePath, os.Stderr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)

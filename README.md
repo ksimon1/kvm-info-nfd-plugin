@@ -26,5 +26,20 @@ Thus, `kvm-info-nfd-plugin` just exports two set of labels:
   virtualization may cause a small performance loss.
 
 
+## tests
+
+To run unit tests:
+```bash
+CONTENT PENDING
+```
+
+To run functional tests:
+```bash
+cd kvm-info-nfd-plugin
+# optionally: (re)build the plugin
+# optionally: make
+./runtests.sh
+```
+
 ## TODO
-- functional tests
+- add more functional tests

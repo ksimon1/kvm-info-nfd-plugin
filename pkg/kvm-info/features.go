@@ -21,6 +21,6 @@ package kvminfo
 func Features() []string {
 	return []string{
 		"hyperv",
-		"hypervL2",
+		"hyperv-lev2",
 	}
 }

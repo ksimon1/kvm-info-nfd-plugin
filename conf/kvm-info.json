@@ -8,7 +8,7 @@
 		},
 		{
 			"os": "centos",
-			"feature": "hypervL2",
+			"feature": "hyperv-lev2",
 			"kernelminver": "3.10.0-957.5.1.el7.x86_64"
 		}
 

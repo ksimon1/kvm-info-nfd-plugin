@@ -25,3 +25,6 @@ Thus, `kvm-info-nfd-plugin` just exports two set of labels:
 - hyperv-lev2: same as above but for L2 (nested hyperv) enlightenments. These are separated because enabling L2 enlightenments without running nested
   virtualization may cause a small performance loss.
 
+
+## TODO
+- functional tests

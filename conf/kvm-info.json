@@ -1,5 +1,5 @@
 {
-	"osrelease": "/etc/os-release",
+	"osrelease": "/host-etc/os-release",
 	"checks": [
 		{
 			"os": "centos",

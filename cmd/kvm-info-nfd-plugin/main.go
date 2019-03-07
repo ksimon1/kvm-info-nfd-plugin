@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	ConfigFilePath string = "conf/kvm-info.json"
+	ConfigFilePath string = "/etc/kubernetes/node-feature-discovery/source.d/conf/kvm-info.json"
 )
 
 func parseArgs() string {

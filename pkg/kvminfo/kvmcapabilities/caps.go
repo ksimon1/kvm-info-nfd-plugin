@@ -16,30 +16,8 @@
  * Copyright 2018 Red Hat, Inc.
  */
 
-package kvminfo
+package kvmcapabilities
 
-import (
-	"encoding/json"
-	"os"
-)
-
-type Config struct {
-	OSRelease   string  `json:"osrelease"`
-	KernVersion string  `json:"kernversion"`
-	Checks      []Check `json:"checks"`
-}
-
-func ReadConfig(confPath string) (*Config, error) {
-	fh, err := os.Open(confPath)
-	if err != nil {
-		return nil, err
-	}
-	defer fh.Close()
-	conf := Config{}
-	dec := json.NewDecoder(fh)
-	err = dec.Decode(&conf)
-	if err != nil {
-		return nil, err
-	}
-	return &conf, nil
+func Get() ([]string, error) {
+	return nil, nil
 }

@@ -16,7 +16,7 @@
  * Copyright 2018 Red Hat, Inc.
  */
 
-package kvminfo
+package versioninfo
 
 func Features() []string {
 	return []string{

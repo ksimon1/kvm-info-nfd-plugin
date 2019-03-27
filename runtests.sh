@@ -5,8 +5,12 @@ if [ ! -x cmd/kvm-info-nfd-plugin/kvm-info-nfd-plugin ]; then
 fi
 
 for testcase in $( ls -d tests/??? ); do
-	result=$(./cmd/kvm-info-nfd-plugin/kvm-info-nfd-plugin $testcase/kvm-info.json 2> /dev/null)
 	expected=$(cat $testcase/_stdout)
+	if [ -r $testcase/kvm-version-info.json ]; then
+		result=$(./cmd/kvm-info-nfd-plugin/kvm-info-nfd-plugin $testcase/kvm-version-info.json 2> /dev/null)
+	else
+		result=$(./cmd/kvm-info-nfd-plugin/kvm-info-nfd-plugin 2> /dev/null)
+	fi
 	if [[ "$result" != "$expected" ]]; then
 		echo "FAIL: $testcase: expected='''$expected''' got='''$result'''"
 	else

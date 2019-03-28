@@ -24,13 +24,12 @@
 #   go-tests = true
 #   unused-packages = true
 
-
 [[constraint]]
   name = "github.com/hashicorp/go-version"
   version = "v1.1.0"
 
 [[constraint]]
-  name= "github.com/acobaugh/osrelease"
+  name = "github.com/acobaugh/osrelease"
   revision = "a93a0a55a24912e113e21f81971dc7248de7f6e2"
 
 [prune]

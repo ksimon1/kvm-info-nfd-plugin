@@ -21,7 +21,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/fromanirh/kvm-info-nfd-plugin/pkg/kvminfo/versioninfo"
 )

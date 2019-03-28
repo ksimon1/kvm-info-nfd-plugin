@@ -1,16 +1,22 @@
-all: binary
+all: binaries
 
-container: binary
+binaries: verinfo capsinfo
+
+container: binaries
 	buildah bud .
 
 vendor:
 	dep ensure
 
-binary:
-	./hack/build/build.sh
+verinfo:
+	./hack/build/build-verinfo.sh
+
+capsinfo:
+	./hack/build/build-capsinfo.sh
 
 clean:
-	rm -f cmd/kvm-info-nfd-plugin/kvm-info-nfd-plugin
+	rm -f cmd/kvm-version-info-nfd-plugin/kvm-version-info-nfd-plugin
+	rm -f cmd/kvm-caps-info-nfd-plugin/kvm-caps-info-nfd-plugin
 
 .PHONY: all container vendor binary clean
 

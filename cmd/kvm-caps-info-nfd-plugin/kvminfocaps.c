@@ -207,7 +207,9 @@ static int kvm_ioctl(KVMState *s, int type, ...)
 
 typedef struct capdesc capdesc;
 struct capdesc {
+    int need_extension;
     unsigned int extension;
+    int need_msr;
     unsigned int msr;
     const char *name;
 };
@@ -216,42 +218,63 @@ struct capdesc {
 
 static const capdesc allcaps[KVMINFO_CAPS_MAX] = {
     {
+        .need_extension = 1,
         .extension = KVM_CAP_HYPERV,
-        .msr = KVMINFO_MSR_HV_DUMMY,
-        .name = "hyperv",
+        .name = "base",
     },
     {
+        .need_extension = 1,
         .extension = KVM_CAP_HYPERV_TIME,
-        .msr = KVMINFO_MSR_HV_DUMMY,
         .name = "time",
     },
     {
+        .need_extension = 1,
         .extension = KVM_CAP_HYPERV_VP_INDEX,
-        .msr = KVMINFO_MSR_HV_DUMMY,
         .name = "vpindex",
 	},
     {
+        .need_extension = 1,
         .extension = KVM_CAP_HYPERV_TLBFLUSH,
-        .msr = KVMINFO_MSR_HV_DUMMY,
         .name = "tlbflush",
     },
     {
-		.extension = KVM_CAP_HYPERV_SEND_IPI,
-        .msr = KVMINFO_MSR_HV_DUMMY,
+        .need_extension = 1,
+        .extension = KVM_CAP_HYPERV_SEND_IPI,
         .name = "sendipi",
 	},
     {
+        .need_extension = 1,
         .extension = KVM_CAP_HYPERV_SYNIC,
+        .need_msr = 1,
         .msr = KVMINFO_MSR_HV_SYNIC,
         .name = "synic",
     },
     {
+        .need_extension = 1,
         .extension = KVM_CAP_HYPERV_SYNIC2,
+        .need_msr = 1,
         .msr = KVMINFO_MSR_HV_SYNIC,
         .name = "synic2",
     },
     {
-        .name = NULL,
+        .need_msr = 1,
+        .msr = KVMINFO_MSR_HV_FREQUENCIES,
+        .name = "frequencies",
+    },
+    {
+        .need_msr = 1,
+        .msr = KVMINFO_MSR_HV_RESET,
+        .name = "reset",
+    },
+    {
+        .need_msr = 1,
+        .msr = KVMINFO_MSR_HV_RUNTIME,
+        .name = "runtime",
+    },
+    {
+        .need_msr = 1,
+        .msr = KVMINFO_MSR_HV_STIMER,
+        .name = "synictimer",
     },
 };
 
@@ -266,13 +289,20 @@ int KVMStateScan(FILE *out)
     }
 
     for (ix = 0; ix < KVMINFO_CAPS_MAX; ix++) {
+        int msr_ok = 1, ext_ok = 1;
         const capdesc *cap = &allcaps[ix];
-        if (allcaps[ix].name == NULL) {
+        if (!cap->need_msr && !cap->need_extension) {
             break;
         }
 
-        if (KVMStateHasEnabledMSR(&s, cap->msr) && KVMStateHasExtension(&s, cap->extension)) {
-            fprintf(out, "/kvm-info-capability-%s\n", cap->name);
+        if (cap->need_msr) {
+            msr_ok = KVMStateHasEnabledMSR(&s, cap->msr);
+        }
+        if (cap->need_extension) {
+            ext_ok = KVMStateHasExtension(&s, cap->extension);
+        }
+        if (msr_ok && ext_ok) {
+            fprintf(out, "/kvm-info-cap-hyperv-%s\n", cap->name);
         }
 
     }

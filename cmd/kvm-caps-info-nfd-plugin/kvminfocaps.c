@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <libgen.h>
 #include <unistd.h>
 
 #include <sys/ioctl.h>
@@ -113,7 +114,7 @@ int KVMStateHasEnabledMSR(KVMState *s, unsigned int msr)
 
 int KVMStateHasExtension(KVMState *s, unsigned int extension)
 {
-    int ret;
+    int ret = -1;
 
     ret = kvm_ioctl(s, KVM_CHECK_EXTENSION, extension);
     if (ret < 0) {
@@ -278,7 +279,23 @@ static const capdesc allcaps[KVMINFO_CAPS_MAX] = {
     },
 };
 
-int KVMStateScan(FILE *out)
+enum {
+    KVM_INFO_SHOW_FEATURES = 0,
+    KVM_INFO_SHOW_MISSING = 1,
+};
+
+static int must_emit_label(int enabled, int mode)
+{
+    if (mode == KVM_INFO_SHOW_FEATURES) {
+        return enabled;
+    }
+    if (mode == KVM_INFO_SHOW_MISSING) {
+        return !enabled;
+    }
+    return 0; // fallback; never reached
+}
+
+int KVMStateScan(FILE *out, int mode)
 {
     int ix, err;
     KVMState s;
@@ -288,6 +305,7 @@ int KVMStateScan(FILE *out)
         return 0;
     }
 
+    const char *suffix = (mode == KVM_INFO_SHOW_MISSING) ?"=false" :"";
     for (ix = 0; ix < KVMINFO_CAPS_MAX; ix++) {
         int msr_ok = 1, ext_ok = 1;
         const capdesc *cap = &allcaps[ix];
@@ -301,10 +319,9 @@ int KVMStateScan(FILE *out)
         if (cap->need_extension) {
             ext_ok = KVMStateHasExtension(&s, cap->extension);
         }
-        if (msr_ok && ext_ok) {
-            fprintf(out, "/kvm-info-cap-hyperv-%s\n", cap->name);
+        if (must_emit_label(msr_ok && ext_ok, mode)) {
+            fprintf(out, "/kvm-info-cap-hyperv-%s%s\n", cap->name, suffix);
         }
-
     }
 
     KVMStateClose(&s); // who cares about failures at this moment?
@@ -313,8 +330,11 @@ int KVMStateScan(FILE *out)
 }
 
 #ifdef KVMINFO_TOOL
+#define MISSING_EXE "kvm-caps-missing-nfd-plugin"
 int main(int argc, char **argv)
 {
-    return KVMStateScan(stdout);
+    const char *exe = basename(argv[0]);
+    int mode = (!strcmp(exe, MISSING_EXE)) ?KVM_INFO_SHOW_MISSING :KVM_INFO_SHOW_FEATURES;
+    return KVMStateScan(stdout, mode);
 }
 #endif // KVMINFO_TOOL

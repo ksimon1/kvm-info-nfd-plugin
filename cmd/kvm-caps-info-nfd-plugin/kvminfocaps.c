@@ -231,6 +231,8 @@ static const capdesc allcaps[KVMINFO_CAPS_MAX] = {
     {
         .need_extension = 1,
         .extension = KVM_CAP_HYPERV_VP_INDEX,
+        .need_msr = 1,
+        .msr = KVMINFO_MSR_HV_VPINDEX,
         .name = "vpindex",
 	},
     {
@@ -241,7 +243,7 @@ static const capdesc allcaps[KVMINFO_CAPS_MAX] = {
     {
         .need_extension = 1,
         .extension = KVM_CAP_HYPERV_SEND_IPI,
-        .name = "sendipi",
+        .name = "ipi",
 	},
     {
         .need_extension = 1,
@@ -277,6 +279,11 @@ static const capdesc allcaps[KVMINFO_CAPS_MAX] = {
         .msr = KVMINFO_MSR_HV_STIMER,
         .name = "synictimer",
     },
+    {
+        .need_msr = 1,
+        .msr = KVMINFO_MSR_HV_REENLIGHTENMENT,
+        .name = "reenlightenment",
+    }
 };
 
 enum {

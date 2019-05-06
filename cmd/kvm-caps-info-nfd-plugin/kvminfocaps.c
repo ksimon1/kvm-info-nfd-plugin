@@ -25,14 +25,10 @@
 
 #include <errno.h>
 #include <stdarg.h>
-#ifdef KVMINFO_TOOL
-#include <stdio.h>
-#endif // KVMINFO_TOOL
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <libgen.h>
 #include <unistd.h>
 
 #include <sys/ioctl.h>
@@ -43,6 +39,8 @@
 #include <linux/kvm.h>
 
 #include "hyperv-proto.h"
+
+#include "kvminfocaps.h"
 
 #ifndef MIN
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
@@ -286,11 +284,6 @@ static const capdesc allcaps[KVMINFO_CAPS_MAX] = {
     }
 };
 
-enum {
-    KVM_INFO_SHOW_FEATURES = 0,
-    KVM_INFO_SHOW_MISSING = 1,
-};
-
 static int must_emit_label(int enabled, int mode)
 {
     if (mode == KVM_INFO_SHOW_FEATURES) {
@@ -335,13 +328,3 @@ int KVMStateScan(FILE *out, int mode)
     return fflush(out);
 
 }
-
-#ifdef KVMINFO_TOOL
-#define MISSING_EXE "kvm-caps-missing-nfd-plugin"
-int main(int argc, char **argv)
-{
-    const char *exe = basename(argv[0]);
-    int mode = (!strcmp(exe, MISSING_EXE)) ?KVM_INFO_SHOW_MISSING :KVM_INFO_SHOW_FEATURES;
-    return KVMStateScan(stdout, mode);
-}
-#endif // KVMINFO_TOOL

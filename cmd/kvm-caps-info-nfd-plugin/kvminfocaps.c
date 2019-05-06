@@ -69,11 +69,12 @@ struct KVMState {
     int msrs[KVMINFO_MSR_HV_NUM];
 };
 
+int kvm_ioctl(int fd, int type, ...);
+
 int KVMStateOpen(KVMState *s, const char *devkvm);
 int KVMStateClose(KVMState *s);
 int KVMStateHasExtension(KVMState *s, unsigned int extension);
 static int KVMGetSupportedMSRs(KVMState *s);
-static int kvm_ioctl(KVMState *s, int type, ...);
 
 int KVMStateOpen(KVMState *s, const char *devkvm)
 {
@@ -114,7 +115,7 @@ int KVMStateHasExtension(KVMState *s, unsigned int extension)
 {
     int ret = -1;
 
-    ret = kvm_ioctl(s, KVM_CHECK_EXTENSION, extension);
+    ret = kvm_ioctl(s->fd, KVM_CHECK_EXTENSION, extension);
     if (ret < 0) {
         ret = 0;
     }
@@ -133,7 +134,7 @@ static int KVMGetSupportedMSRs(KVMState *s)
     /* Obtain MSR list from KVM.  These are the MSRs that we must
      * save/restore */
     msr_list.nmsrs = 0;
-    ret = kvm_ioctl(s, KVM_GET_MSR_INDEX_LIST, &msr_list);
+    ret = kvm_ioctl(s->fd, KVM_GET_MSR_INDEX_LIST, &msr_list);
     if (ret < 0 && ret != -E2BIG) {
         return ret;
     }
@@ -147,7 +148,7 @@ static int KVMGetSupportedMSRs(KVMState *s)
 
     kvm_msr_list->nmsrs = msr_list.nmsrs;
 
-    ret = kvm_ioctl(s, KVM_GET_MSR_INDEX_LIST, kvm_msr_list);
+    ret = kvm_ioctl(s->fd, KVM_GET_MSR_INDEX_LIST, kvm_msr_list);
     if (ret >= 0) {
         int i;
 
@@ -183,24 +184,6 @@ static int KVMGetSupportedMSRs(KVMState *s)
 
     free(kvm_msr_list);
 
-    return ret;
-}
-
-
-static int kvm_ioctl(KVMState *s, int type, ...)
-{
-    int ret;
-    void *arg;
-    va_list ap;
-
-    va_start(ap, type);
-    arg = va_arg(ap, void *);
-    va_end(ap);
-
-    ret = ioctl(s->fd, type, arg);
-    if (ret == -1) {
-        ret = -errno;
-    }
     return ret;
 }
 

@@ -16,8 +16,6 @@
 #ifndef KVM_INFO_CAPS_H
 #define KVM_INFO_CAPS_H
 
-#include <stdio.h>
-
 typedef struct KVMState KVMState;
 
 int KVMStateOpen(KVMState *s, const char *devkvm);
@@ -29,6 +27,8 @@ enum {
     KVM_INFO_SHOW_MISSING = 1,
 };
 
-int KVMStateScan(FILE *out, int mode);
+typedef int (*KVMEmitCap)(void *ud, const char *cap);
+
+int KVMStateScan(KVMEmitCap emit, void *ud, int mode);
 
 #endif /* KVM_INFO_CAPS_H */

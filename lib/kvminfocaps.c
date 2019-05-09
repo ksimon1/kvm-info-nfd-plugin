@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -48,6 +49,10 @@
 #ifndef MAX
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
+
+enum {
+    CAP_NAME_MAX = 1024
+};
 
 enum {
     KVMINFO_MSR_HV_DUMMY = 0,
@@ -278,7 +283,7 @@ static int must_emit_label(int enabled, int mode)
     return 0; // fallback; never reached
 }
 
-int KVMStateScan(FILE *out, int mode)
+int KVMStateScan(KVMEmitCap emit, void *ud, int mode)
 {
     int ix, err;
     KVMState s;
@@ -303,11 +308,12 @@ int KVMStateScan(FILE *out, int mode)
             ext_ok = KVMStateHasExtension(&s, cap->extension);
         }
         if (must_emit_label(msr_ok && ext_ok, mode)) {
-            fprintf(out, "/kvm-info-cap-hyperv-%s%s\n", cap->name, suffix);
+            char capbuf[CAP_NAME_MAX] = { '\0' };
+            snprintf(capbuf, sizeof(capbuf), "/kvm-info-cap-hyperv-%s%s\n", cap->name, suffix);
+            emit(ud, capbuf);
         }
     }
 
-    KVMStateClose(&s); // who cares about failures at this moment?
-    return fflush(out);
-
+    KVMStateClose(&s); // who cares about failures now?
+    return 0;
 }

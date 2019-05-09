@@ -12,6 +12,7 @@ verinfo:
 	./hack/build/build-verinfo.sh
 
 capsinfo:
+	./hack/build/build-libcapsinfo.sh
 	./hack/build/build-capsinfo.sh
 
 clean:

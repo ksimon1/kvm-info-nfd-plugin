@@ -20,7 +20,6 @@ typedef struct KVMState KVMState;
 
 int KVMStateOpen(KVMState *s, const char *devkvm);
 int KVMStateClose(KVMState *s);
-int KVMStateHasExtension(KVMState *s, unsigned int extension);
 
 enum {
     KVM_INFO_SHOW_FEATURES = 0,

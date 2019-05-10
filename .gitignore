@@ -5,3 +5,4 @@ lib/*.a
 tags
 tests/caps-info/kvm-caps-info-test
 tests/version-info/kvm-version-info-test
+_out

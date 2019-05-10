@@ -23,11 +23,19 @@ clean:
 	rm -f lib/*.o
 	rm -f lib/*.a
 
-unittests: capsinfo verinfo
+unittests: plugins
 	cd tests/caps-info && ./test-runner.sh
 	cd tests/version-info && ./test-runner.sh
 
+plugins: capsinfo verinfo
+
 tests: unittests
 
-.PHONY: all container vendor binary clean unittests tests
+release:
+	mkdir -p _out
+	cp cmd/kvm-version-info-nfd-plugin/kvm-version-info-nfd-plugin _out/kvm-version-info-nfd-plugin-${VERSION}-linux-amd64
+	cp cmd/kvm-caps-info-nfd-plugin/kvm-caps-info-nfd-plugin _out/kvm-caps-info-nfd-plugin-${VERSION}-linux-amd64
+	hack/container/docker-push.sh ${VERSION}
+
+.PHONY: all container vendor binary clean unittests tests plugins release
 

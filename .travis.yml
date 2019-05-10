@@ -1,0 +1,31 @@
+sudo: required
+dist: xenial
+language: go
+go: "1.11"
+
+services:
+- docker
+
+script:
+- '[ "${TRAVIS_PULL_REQUEST}" != "false" ] && make unittests'
+
+jobs:
+  include:
+  - stage: Build and Deploy
+    name: Build and Deploy to GitHub
+    if: tag IS present
+    before_script: skip
+    script: make release "VERSION=$TRAVIS_TAG"
+    deploy:
+      provider: releases
+      api_key: "$GITHUB_TOKEN"
+      skip_cleanup: true
+      overwrite: true
+      file_glob: true
+      file:
+      - _out/*
+      name: $TRAVIS_TAG
+      on:
+        tags: true
+        branch: master
+        repo: fromanirh/kvm-info-nfd-plugin

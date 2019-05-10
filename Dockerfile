@@ -1,13 +1,17 @@
+FROM quay.io/fromani/centos-builder:7 as builder
+WORKDIR /go/src/github.com/fromanirh/kvm-info-nfd-plugin
+ENV GOPATH=/go
+COPY . .
+RUN make plugins
+RUN cp cmd/kvm-caps-info-nfd-plugin/kvm-caps-info-nfd-plugin /
+RUN cp cmd/kvm-version-info-nfd-plugin/kvm-version-info-nfd-plugin /
+
 FROM centos:7
-
 MAINTAINER "Francesco Romani" <fromani@redhat.com>
-
 ENV container docker
-
 RUN yum -y update
 
 RUN mkdir -p /etc/kvm-version-info-nfd-plugin
 COPY conf/kvm-version-info.json /etc/kvm-info-nfd-plugin
-COPY cmd/kvm-version-info-nfd-plugin/kvm-version-info-nfd-plugin /usr/bin/
-
-COPY cmd/kvm-caps-info-nfd-plugin/kvm-caps-info-nfd-plugin /usr/bin/
+COPY --from=builder /kvm-version-info-nfd-plugin /usr/bin/
+COPY --from=builder /kvm-caps-info-nfd-plugin /usr/bin/

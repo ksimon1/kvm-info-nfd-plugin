@@ -10,6 +10,7 @@ vendor:
 
 verinfo:
 	./hack/build/build-verinfo.sh
+	./hack/build/build-verinfo-test.sh
 
 capsinfo:
 	./hack/build/build-capsinfo-lib.sh
@@ -22,8 +23,9 @@ clean:
 	rm -f lib/*.o
 	rm -f lib/*.a
 
-unittests: capsinfo
+unittests: capsinfo verinfo
 	cd tests/caps-info && ./test-runner.sh
+	cd tests/version-info && ./test-runner.sh
 
 tests: unittests
 

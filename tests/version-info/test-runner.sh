@@ -8,7 +8,11 @@ for testcase in $( ls -d ??? ); do
 	fi
 
 	expected=$(cat ${testcase}/_stdout)
-	obtained=$(./kvm-caps-info-test ${testcase}/kvm.toml)
+	if [ -r $testcase/kvm-version-info.json ]; then
+		obtained=$(./kvm-version-info-test ${testcase}/kvm-version-info.json 2> /dev/null)
+	else
+		obtained=$(./kvm-version-info-test 2> /dev/null)
+	fi
 	result="???"
 	if [ "${obtained}" != "${expected}" ]; then
 		result="FAIL"

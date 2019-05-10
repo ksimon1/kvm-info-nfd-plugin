@@ -3,3 +3,4 @@ cmd/kvm-caps-info-nfd-plugin/kvm-caps-info-nfd-plugin
 lib/*.o
 lib/*.a
 tags
+tests/caps-info/kvm-caps-info-test

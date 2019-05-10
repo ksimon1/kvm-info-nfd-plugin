@@ -1,0 +1,4 @@
+/kvm-info-cap-hyperv-base
+/kvm-info-cap-hyperv-time
+/kvm-info-cap-hyperv-tlbflush
+/kvm-info-cap-hyperv-ipi

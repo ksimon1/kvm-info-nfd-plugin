@@ -1,6 +1,6 @@
 {
-	"osrelease": "tests/003/etc/os-release",
-	"kernversion": "tests/003/proc/version",
+	"osrelease": "002/etc/os-release",
+	"kernversion": "002/proc/version",
 	"checks": [
 		{
 			"os": "centos",

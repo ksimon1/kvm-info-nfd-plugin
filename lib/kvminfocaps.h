@@ -16,19 +16,18 @@
 #ifndef KVM_INFO_CAPS_H
 #define KVM_INFO_CAPS_H
 
-#include <stdio.h>
-
 typedef struct KVMState KVMState;
 
 int KVMStateOpen(KVMState *s, const char *devkvm);
 int KVMStateClose(KVMState *s);
-int KVMStateHasExtension(KVMState *s, unsigned int extension);
 
 enum {
     KVM_INFO_SHOW_FEATURES = 0,
     KVM_INFO_SHOW_MISSING = 1,
 };
 
-int KVMStateScan(FILE *out, int mode);
+typedef int (*KVMEmitCap)(void *ud, const char *cap);
+
+int KVMStateScan(const char *dev, KVMEmitCap emit, void *ud, int mode);
 
 #endif /* KVM_INFO_CAPS_H */

@@ -1,0 +1,5 @@
+/kvm-info-cap-hyperv-frequencies
+/kvm-info-cap-hyperv-reset
+/kvm-info-cap-hyperv-runtime
+/kvm-info-cap-hyperv-synictimer
+/kvm-info-cap-hyperv-reenlightenment

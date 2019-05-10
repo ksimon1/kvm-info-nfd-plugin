@@ -23,16 +23,25 @@
  * See the COPYING file in the top-level directory.
  */
 
+#include <stdio.h>
 #include <string.h>
 
 #include <libgen.h>
 
 #include "kvminfocaps.h"
 
+static int emit(void *ud, const char *cap)
+{
+    return fputs(cap, ud);
+}
+
 #define MISSING_EXE "kvm-caps-missing-nfd-plugin"
 int main(int argc, char **argv)
 {
     const char *exe = basename(argv[0]);
+    const char *dev = (argc == 2) ?argv[1] :"/dev/kvm";
     int mode = (!strcmp(exe, MISSING_EXE)) ?KVM_INFO_SHOW_MISSING :KVM_INFO_SHOW_FEATURES;
-    return KVMStateScan(stdout, mode);
+    int ret = KVMStateScan(dev, emit, stdout, mode);
+    fflush(stdout);
+    return ret;
 }

@@ -1,0 +1,11 @@
+/kvm-info-cap-hyperv-base
+/kvm-info-cap-hyperv-time
+/kvm-info-cap-hyperv-vpindex
+/kvm-info-cap-hyperv-tlbflush
+/kvm-info-cap-hyperv-ipi
+/kvm-info-cap-hyperv-synic
+/kvm-info-cap-hyperv-frequencies
+/kvm-info-cap-hyperv-reset
+/kvm-info-cap-hyperv-runtime
+/kvm-info-cap-hyperv-synictimer
+/kvm-info-cap-hyperv-reenlightenment

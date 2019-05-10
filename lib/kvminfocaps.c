@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -42,12 +43,9 @@
 
 #include "kvminfocaps.h"
 
-#ifndef MIN
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#endif
-#ifndef MAX
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#endif
+enum {
+    CAP_NAME_MAX = 1024
+};
 
 enum {
     KVMINFO_MSR_HV_DUMMY = 0,
@@ -69,19 +67,21 @@ struct KVMState {
     int msrs[KVMINFO_MSR_HV_NUM];
 };
 
-int kvm_ioctl(int fd, int type, ...);
-
 int KVMStateOpen(KVMState *s, const char *devkvm);
 int KVMStateClose(KVMState *s);
-int KVMStateHasExtension(KVMState *s, unsigned int extension);
 static int KVMGetSupportedMSRs(KVMState *s);
+
+int kvm_open(const char *dev);
+int kvm_close(int fd);
+int kvm_has_extension(int fd, unsigned int extension);
+struct kvm_msr_list *kvm_get_msr_list(int fd);
 
 int KVMStateOpen(KVMState *s, const char *devkvm)
 {
     if (s == NULL) {
         return -1;
     }
-    s->fd = open(devkvm, O_RDWR);
+    s->fd = kvm_open(devkvm);
     if (s->fd < 0) {
         return -1;
     }
@@ -95,7 +95,7 @@ int KVMStateClose(KVMState *s)
         return -1;
     }
     if (s->fd != -1) {
-        err = close(s->fd);
+        err = kvm_close(s->fd);
         if (err == 0) {
             s->fd = -1;
         }
@@ -111,45 +111,11 @@ int KVMStateHasEnabledMSR(KVMState *s, unsigned int msr)
     return s->msrs[msr];
 }
 
-int KVMStateHasExtension(KVMState *s, unsigned int extension)
-{
-    int ret = -1;
-
-    ret = kvm_ioctl(s->fd, KVM_CHECK_EXTENSION, extension);
-    if (ret < 0) {
-        ret = 0;
-    }
-
-    return ret;
-}
-
 static int KVMGetSupportedMSRs(KVMState *s)
 {
-    int ret = 0;
-    struct kvm_msr_list msr_list, *kvm_msr_list;
-
-    memset(&s->msrs, 0, sizeof(s->msrs));
-    s->msrs[KVMINFO_MSR_HV_DUMMY] = 1;
-
-    /* Obtain MSR list from KVM.  These are the MSRs that we must
-     * save/restore */
-    msr_list.nmsrs = 0;
-    ret = kvm_ioctl(s->fd, KVM_GET_MSR_INDEX_LIST, &msr_list);
-    if (ret < 0 && ret != -E2BIG) {
-        return ret;
-    }
-    /* Old kernel modules had a bug and could write beyond the provided
-       memory. Allocate at least a safe amount of 1K. */
-    size_t msr_size = MAX(1024, sizeof(msr_list) + msr_list.nmsrs * sizeof(msr_list.indices[0]));
-    kvm_msr_list = calloc(1, msr_size);
-    if (kvm_msr_list == NULL) {
-        return -1;
-    }
-
-    kvm_msr_list->nmsrs = msr_list.nmsrs;
-
-    ret = kvm_ioctl(s->fd, KVM_GET_MSR_INDEX_LIST, kvm_msr_list);
-    if (ret >= 0) {
+    int ret = -1;
+    struct kvm_msr_list *kvm_msr_list = kvm_get_msr_list(s->fd);
+    if (kvm_msr_list != NULL) {
         int i;
 
         for (i = 0; i < kvm_msr_list->nmsrs; i++) {
@@ -180,10 +146,10 @@ static int KVMGetSupportedMSRs(KVMState *s)
                 break;
             }
         }
+    
+        free(kvm_msr_list);
+        ret = 0;
     }
-
-    free(kvm_msr_list);
-
     return ret;
 }
 
@@ -278,12 +244,14 @@ static int must_emit_label(int enabled, int mode)
     return 0; // fallback; never reached
 }
 
-int KVMStateScan(FILE *out, int mode)
+int KVMStateScan(const char *dev, KVMEmitCap emit, void *ud, int mode)
 {
     int ix, err;
-    KVMState s;
+    KVMState s = {
+        .fd = -1,
+    };
 
-    err = KVMStateOpen(&s, "/dev/kvm");
+    err = KVMStateOpen(&s, dev);
     if (err) {
         return 0;
     }
@@ -300,14 +268,39 @@ int KVMStateScan(FILE *out, int mode)
             msr_ok = KVMStateHasEnabledMSR(&s, cap->msr);
         }
         if (cap->need_extension) {
-            ext_ok = KVMStateHasExtension(&s, cap->extension);
+            ext_ok = kvm_has_extension(s.fd, cap->extension);
         }
         if (must_emit_label(msr_ok && ext_ok, mode)) {
-            fprintf(out, "/kvm-info-cap-hyperv-%s%s\n", cap->name, suffix);
+            char capbuf[CAP_NAME_MAX] = { '\0' };
+            snprintf(capbuf, sizeof(capbuf), "/kvm-info-cap-hyperv-%s%s\n", cap->name, suffix);
+            emit(ud, capbuf);
         }
     }
 
-    KVMStateClose(&s); // who cares about failures at this moment?
-    return fflush(out);
+    KVMStateClose(&s); // who cares about failures now?
+    return 0;
+}
 
+
+#ifndef MIN
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+#ifndef MAX
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+struct kvm_msr_list *kvm_alloc_msr_list(uint32_t nmsrs)
+{
+    size_t msr_size = 0;
+    struct kvm_msr_list msr_list, *kvm_msr_list;
+
+    /* Old kernel modules had a bug and could write beyond the provided
+       memory. Allocate at least a safe amount of 1K. */
+    msr_size = MAX(1024, sizeof(msr_list) + nmsrs * sizeof(msr_list.indices[0]));
+    kvm_msr_list = calloc(1, msr_size);
+    if (kvm_msr_list == NULL) {
+        return NULL;
+    }
+    kvm_msr_list->nmsrs = nmsrs;
+    return kvm_msr_list;
 }

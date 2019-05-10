@@ -244,12 +244,14 @@ static int must_emit_label(int enabled, int mode)
     return 0; // fallback; never reached
 }
 
-int KVMStateScan(KVMEmitCap emit, void *ud, int mode)
+int KVMStateScan(const char *dev, KVMEmitCap emit, void *ud, int mode)
 {
     int ix, err;
-    KVMState s;
+    KVMState s = {
+        .fd = -1,
+    };
 
-    err = KVMStateOpen(&s, "/dev/kvm");
+    err = KVMStateOpen(&s, dev);
     if (err) {
         return 0;
     }
@@ -277,4 +279,28 @@ int KVMStateScan(KVMEmitCap emit, void *ud, int mode)
 
     KVMStateClose(&s); // who cares about failures now?
     return 0;
+}
+
+
+#ifndef MIN
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+#ifndef MAX
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+struct kvm_msr_list *kvm_alloc_msr_list(uint32_t nmsrs)
+{
+    size_t msr_size = 0;
+    struct kvm_msr_list msr_list, *kvm_msr_list;
+
+    /* Old kernel modules had a bug and could write beyond the provided
+       memory. Allocate at least a safe amount of 1K. */
+    msr_size = MAX(1024, sizeof(msr_list) + nmsrs * sizeof(msr_list.indices[0]));
+    kvm_msr_list = calloc(1, msr_size);
+    if (kvm_msr_list == NULL) {
+        return NULL;
+    }
+    kvm_msr_list->nmsrs = nmsrs;
+    return kvm_msr_list;
 }

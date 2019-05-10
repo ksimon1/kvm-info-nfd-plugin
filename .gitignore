@@ -2,3 +2,4 @@ cmd/kvm-version-info-nfd-plugin/kvm-version-info-nfd-plugin
 cmd/kvm-caps-info-nfd-plugin/kvm-caps-info-nfd-plugin
 lib/*.o
 lib/*.a
+tags

@@ -14,6 +14,7 @@ verinfo:
 capsinfo:
 	./hack/build/build-capsinfo-lib.sh
 	./hack/build/build-capsinfo.sh
+	./hack/build/build-capsinfo-test.sh
 
 clean:
 	rm -f cmd/kvm-version-info-nfd-plugin/kvm-version-info-nfd-plugin
@@ -21,5 +22,10 @@ clean:
 	rm -f lib/*.o
 	rm -f lib/*.a
 
-.PHONY: all container vendor binary clean
+unittests: capsinfo
+	cd tests/caps-info && ./test-runner.sh
+
+tests: unittests
+
+.PHONY: all container vendor binary clean unittests tests
 

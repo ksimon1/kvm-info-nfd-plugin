@@ -28,6 +28,6 @@ enum {
 
 typedef int (*KVMEmitCap)(void *ud, const char *cap);
 
-int KVMStateScan(KVMEmitCap emit, void *ud, int mode);
+int KVMStateScan(const char *dev, KVMEmitCap emit, void *ud, int mode);
 
 #endif /* KVM_INFO_CAPS_H */

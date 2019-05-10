@@ -39,8 +39,9 @@ static int emit(void *ud, const char *cap)
 int main(int argc, char **argv)
 {
     const char *exe = basename(argv[0]);
+    const char *dev = (argc == 2) ?argv[1] :"/dev/kvm";
     int mode = (!strcmp(exe, MISSING_EXE)) ?KVM_INFO_SHOW_MISSING :KVM_INFO_SHOW_FEATURES;
-    int ret = KVMStateScan(emit, stdout, mode);
+    int ret = KVMStateScan(dev, emit, stdout, mode);
     fflush(stdout);
     return ret;
 }

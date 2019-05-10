@@ -1,6 +1,6 @@
 #!/bin/sh
-gcc -Wall -g -Ilib -Icontrib/tomlc99 -o tests/capsinfo/kvm-caps-info-test \
+gcc -Wall -g -Ilib -Icontrib/tomlc99 -o tests/caps-info/kvm-caps-info-test \
 	cmd/kvm-caps-info-nfd-plugin/main.c \
 	lib/libkvminfocaps.a \
-	tests/capsinfo/mock_kvm_io.c \
+	tests/caps-info/mock_kvm_io.c \
 	contrib/tomlc99/toml.c

@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <string.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 #include <unistd.h>
@@ -36,14 +37,6 @@
 #include <fcntl.h>
 
 #include <linux/kvm.h>
-
-
-#ifndef MIN
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#endif
-#ifndef MAX
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#endif
 
 
 static int kvm_ioctl(int fd, int type, ...)
@@ -85,10 +78,11 @@ int kvm_has_extension(int fd, unsigned int extension)
     return ret;
 }
 
+extern struct kvm_msr_list *kvm_alloc_msr_list(uint32_t nmsrs);
+
 struct kvm_msr_list *kvm_get_msr_list(int fd)
 {
     int ret = -1;
-    size_t msr_size = 0;
     struct kvm_msr_list msr_list, *kvm_msr_list;
 
     /* Obtain MSR list from KVM.  These are the MSRs that we must
@@ -98,15 +92,11 @@ struct kvm_msr_list *kvm_get_msr_list(int fd)
     if (ret < 0 && ret != -E2BIG) {
         return NULL;
     }
-    /* Old kernel modules had a bug and could write beyond the provided
-       memory. Allocate at least a safe amount of 1K. */
-    msr_size = MAX(1024, sizeof(msr_list) + msr_list.nmsrs * sizeof(msr_list.indices[0]));
-    kvm_msr_list = calloc(1, msr_size);
+
+    kvm_msr_list = kvm_alloc_msr_list(msr_list.nmsrs);
     if (kvm_msr_list == NULL) {
         return NULL;
     }
-
-    kvm_msr_list->nmsrs = msr_list.nmsrs;
 
     ret = kvm_ioctl(fd, KVM_GET_MSR_INDEX_LIST, kvm_msr_list);
     if (ret < 0) {

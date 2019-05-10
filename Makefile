@@ -31,10 +31,10 @@ plugins: capsinfo verinfo
 
 tests: unittests
 
-release:
+release: verinfo
 	mkdir -p _out
 	cp cmd/kvm-version-info-nfd-plugin/kvm-version-info-nfd-plugin _out/kvm-version-info-nfd-plugin-${VERSION}-linux-amd64
-	cp cmd/kvm-caps-info-nfd-plugin/kvm-caps-info-nfd-plugin _out/kvm-caps-info-nfd-plugin-${VERSION}-linux-amd64
+	# skip C build for now
 	hack/container/docker-push.sh ${VERSION}
 
 .PHONY: all container vendor binary clean unittests tests plugins release

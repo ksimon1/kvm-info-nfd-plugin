@@ -6,10 +6,9 @@ RUN make plugins
 RUN cp cmd/kvm-caps-info-nfd-plugin/kvm-caps-info-nfd-plugin /
 RUN cp cmd/kvm-version-info-nfd-plugin/kvm-version-info-nfd-plugin /
 
-FROM centos:7
+FROM registry.access.redhat.com/ubi8/ubi-minimal
 MAINTAINER "Francesco Romani" <fromani@redhat.com>
 ENV container docker
-RUN yum -y update
 
 RUN mkdir -p /etc/kvm-version-info-nfd-plugin
 COPY conf/kvm-version-info.json /etc/kvm-info-nfd-plugin

@@ -1,5 +1,5 @@
 FROM quay.io/fromani/centos-builder:7 as builder
-WORKDIR /go/src/github.com/fromanirh/kvm-info-nfd-plugin
+WORKDIR /go/src/github.com/kubevirt/kvm-info-nfd-plugin
 ENV GOPATH=/go
 COPY . .
 RUN make plugins

@@ -33,4 +33,4 @@ jobs:
       on:
         tags: true
         branch: master
-        repo: fromanirh/kvm-info-nfd-plugin
+        repo: kubevirt/kvm-info-nfd-plugin

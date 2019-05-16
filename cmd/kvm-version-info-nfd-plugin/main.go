@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fromanirh/kvm-info-nfd-plugin/pkg/kvminfo/versioninfo"
+	"github.com/kubevirt/kvm-info-nfd-plugin/pkg/kvminfo/versioninfo"
 )
 
 const (

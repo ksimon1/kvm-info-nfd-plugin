@@ -27,15 +27,23 @@ unittests: plugins
 	cd tests/caps-info && ./test-runner.sh
 	cd tests/version-info && ./test-runner.sh
 
+release-clean:
+	rm -rf _out
+
+release-plugins: release-clean plugins
+	mkdir -p _out
+	cp cmd/kvm-version-info-nfd-plugin/kvm-version-info-nfd-plugin _out/kvm-version-info-nfd-plugin-${VERSION}-linux-amd64
+	cp cmd/kvm-caps-info-nfd-plugin/kvm-caps-info-nfd-plugin _out/kvm-caps-info-nfd-plugin-${VERSION}-linux-amd64
+
+release: release-plugins
+	hack/container/docker-push.sh ${VERSION}
+
+functests: release-plugins
+	./hack/functest.sh
+
 plugins: capsinfo verinfo
 
 tests: unittests
 
-release: plugins
-	mkdir -p _out
-	cp cmd/kvm-version-info-nfd-plugin/kvm-version-info-nfd-plugin _out/kvm-version-info-nfd-plugin-${VERSION}-linux-amd64
-	cp cmd/kvm-caps-info-nfd-plugin/kvm-caps-info-nfd-plugin _out/kvm-caps-info-nfd-plugin-${VERSION}-linux-amd64
-	hack/container/docker-push.sh ${VERSION}
-
-.PHONY: all container vendor binary clean unittests tests plugins release
+.PHONY: all container vendor binary clean unittests tests plugins release release-plugins release-clean
 

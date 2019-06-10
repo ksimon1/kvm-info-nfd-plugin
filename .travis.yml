@@ -33,4 +33,4 @@ jobs:
       on:
         tags: true
         branch: master
-        repo: kubevirt/kvm-info-nfd-plugin
+        repo: $TRAVIS_REPO_SLUG

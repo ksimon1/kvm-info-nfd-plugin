@@ -146,7 +146,7 @@ static int KVMGetSupportedMSRs(KVMState *s)
                 break;
             }
         }
-    
+
         free(kvm_msr_list);
         ret = 0;
     }

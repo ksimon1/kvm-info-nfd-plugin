@@ -37,5 +37,9 @@ release: plugins
 	cp cmd/kvm-caps-info-nfd-plugin/kvm-caps-info-nfd-plugin _out/kvm-caps-info-nfd-plugin-${VERSION}-linux-amd64
 	hack/container/docker-push.sh ${VERSION}
 
-.PHONY: all container vendor binary clean unittests tests plugins release
+check-fmt: check-whitespaces
 
+check-whitespaces:
+	./hack/check-whitespaces.sh
+
+.PHONY: all vendor binaries clean unittests tests plugins release release-plugins release-clean check-fmt check-whitespaces

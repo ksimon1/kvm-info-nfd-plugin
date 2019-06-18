@@ -14,13 +14,16 @@ jobs:
   include:
   - stage: Tests
     name: Perform unit tests
-    script: make unittests "VERSION=devel"
+    script:
+    - make check-fmt
+    - make unittests "VERSION=devel"
 
   - stage: Build and Deploy
     name: Build and Deploy to GitHub
     if: tag IS present
     before_script: skip
-    script: make release "VERSION=$TRAVIS_TAG"
+    script:
+    - make release "VERSION=$TRAVIS_TAG"
     deploy:
       provider: releases
       api_key: "$GITHUB_TOKEN"

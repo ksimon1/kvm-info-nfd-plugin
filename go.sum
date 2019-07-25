@@ -1,0 +1,6 @@
+github.com/cobaugh/osrelease v0.0.0-20181218015638-a93a0a55a249 h1:R0IDH8daQ3lODvu8YtxnIqqth5qMGCJyADoUQvmLx4o=
+github.com/cobaugh/osrelease v0.0.0-20181218015638-a93a0a55a249/go.mod h1:EHKW9yNEYSBpTKzuu7Y9oOrft/UlzH57rMIB03oev6M=
+github.com/hashicorp/go-version v1.1.0 h1:bPIoEKD27tNdebFGGxxYwcL4nepeY4j1QP23PFRGzg0=
+github.com/hashicorp/go-version v1.1.0/go.mod h1:fltr4n8CU8Ke44wwGCBoEymUuxUHl09ZGVZPK5anwXA=
+github.com/kubevirt/kvm-info-nfd-plugin v0.5.7 h1:HMlHBmO+3TMtbBJzY99SClItTsDDakoULm5cGUpjo/g=
+github.com/kubevirt/kvm-info-nfd-plugin v0.5.7/go.mod h1:sJreo5JK16IPFoECWyqGab6W9Cza7fQNOe5tkw7/KaM=

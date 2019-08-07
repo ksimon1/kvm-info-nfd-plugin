@@ -1,0 +1,8 @@
+# LICENSING INFORMATION
+
+## kvm-version-info-nfd-plugin
+Is licensed under the APACHE v2 license. This includes code under `cmd/kvm-version-info-nfd-plugin` and under `pkg/`.
+
+## kvm-caps-info-nfd-plugin
+Is licensed under the GPL v2 license, because it borrows most of the code from the QEMU project, so we keep the
+same license as the original files.

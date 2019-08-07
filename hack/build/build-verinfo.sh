@@ -1,2 +1,5 @@
 #!/bin/sh
-cd cmd/kvm-version-info-nfd-plugin && GO111MODULE=on go build -v .
+export GO111MODULE=on
+export GOPROXY=off
+export GOFLAGS=-mod=vendor
+cd cmd/kvm-version-info-nfd-plugin && go build -v .
